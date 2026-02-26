@@ -1,8 +1,5 @@
-"""
-Example: Single Object 3D Reconstruction with Cupid3D
-"""
-
 import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '6'
 os.environ['SPCONV_ALGO'] = 'native'  # Use 'auto' for faster repeated runs
 
 import imageio
@@ -13,8 +10,18 @@ from cupid.utils import render_utils, sample_utils
 from cupid.utils.align_utils import save_mesh
 
 
+home = os.environ['HOME']
+
+model_folder_path = home + '/chLi/Model/CUPID/Cupid/'
+
+data_folder_path = home + '/chLi/Dataset/GS/haizei_1_v4/'
+
+image_file_path = data_folder_path + 'colmap_normalized/masked_images/000001.png'
+save_result_folder_path = data_folder_path + 'cupid/000001/'
+os.makedirs(save_result_folder_path, exist_ok=True)
+
 # Load pipeline
-pipeline = Cupid3DPipeline.from_pretrained("hbb1/Cupid")
+pipeline = Cupid3DPipeline.from_pretrained(model_folder_path)
 pipeline.cuda()
 
 # Load input image and run reconstruction
@@ -31,20 +38,11 @@ outputs = pipeline.run(image)
 render_rgb = render_utils.render_pose(outputs['gaussian'][0], outputs['pose'][0])['color'][0]
 input_rgb = Image.alpha_composite(Image.new("RGBA", image.size, (0, 0, 0, 255)), image)
 input_rgb = np.array(input_rgb.resize((512, 512), Image.Resampling.LANCZOS).convert('RGB'))
-imageio.imwrite('sample.png', np.concatenate([input_rgb, render_rgb], axis=1))
+imageio.imwrite(save_result_folder_path + 'sample.png', np.concatenate([input_rgb, render_rgb], axis=1))
 
 # Save mesh and camera pose
 save_mesh(
     all_outputs=outputs,
     poses=outputs.pop('pose'),
-    output_dir='output'
+    output_dir=save_result_folder_path,
 )
-
-# Optional: convert to Blender file
-# python convert_blender.py --meta_file output/metadata.json --output_path output/scene.blend --save_file
-
-# Optional: render turntable video
-# video_rgb = render_utils.render_video(outputs['gaussian'][0])['color']
-# video_normal = render_utils.render_video(outputs['mesh'][0])['normal']
-# video_combined = [np.concatenate([r, n], axis=1) for r, n in zip(video_rgb, video_normal)]
-# imageio.mimsave('sample.mp4', video_combined, fps=30)
