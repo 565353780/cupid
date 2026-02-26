@@ -11,7 +11,7 @@ conda activate cupid
 ## Run
 
 ```bash
-./run.sh
+python example.py
 ```
 
 ## Enjoy it~

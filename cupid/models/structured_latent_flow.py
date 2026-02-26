@@ -315,7 +315,8 @@ class LatentConditioningSLatFlowModel(SLatFlowModel):
         share_mod: bool = False,
         qk_rms_norm: bool = False,
         qk_rms_norm_cross: bool = False,
-        pretrained_slat_enc: str = 'microsoft/TRELLIS-image-large/ckpts/slat_enc_swin8_B_64l8_fp16', 
+        #pretrained_slat_enc: str = 'microsoft/TRELLIS-image-large/ckpts/slat_enc_swin8_B_64l8_fp16', 
+        pretrained_slat_enc: str = os.environ['HOME'] + '/chLi/Model/CUPID/Cupid/ckpts/slat_enc_swin8_B_64l8_fp16', 
         slat_enc_path: Optional[str] = None, 
         slat_enc_ckpt: Optional[str] = None, 
     ):
